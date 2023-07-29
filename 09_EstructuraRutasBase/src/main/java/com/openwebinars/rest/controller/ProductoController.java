@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+//import com.example.restservice.Greeting;
 import com.openwebinars.rest.modelo.Producto;
 import com.openwebinars.rest.modelo.ProductoRepositorio;
 
@@ -22,10 +23,8 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/api/")
 public class ProductoController {
 
-	
 	private final ProductoRepositorio productoRepositorio;
 
 	
@@ -33,58 +32,62 @@ public class ProductoController {
 	
 	/**
 	 * Obtenemos todos los productos
-	 * 
-	 * @return List of Product
+	 * @return List
 	 */
 	@GetMapping("/producto")
-	public List<Producto> producto() {
+	public List<Producto> obtenerTodos() {
 		return productoRepositorio.findAll();
 	}
-
+	
 	/**
 	 * Obtenemos un producto en base a su ID
-	 * 
 	 * @param id
 	 * @return Null si no encuentra el producto
 	 */
 	@GetMapping("/producto/{id}")
 	public Producto obtenerUno(@PathVariable Long id) {
-		return this.productoRepositorio.findById(id).orElse(null);
+		return productoRepositorio.findById(id).orElse(null);
 	}
-
+	
 	/**
 	 * Insertamos un nuevo producto
-	 * 
 	 * @param nuevo
 	 * @return producto insertado
 	 */
 	@PostMapping("/producto")
 	public Producto nuevoProducto(@RequestBody Producto nuevo) {
-		// Vamos a modificar este código
-		return null;
+		return productoRepositorio.save(nuevo);
 	}
-
+	
 	/**
-	 * 
-	 * @param editar
+	 * Editar un producto
+	 * @param producto
 	 * @param id
-	 * @return
+	 * @return producto
 	 */
 	@PutMapping("/producto/{id}")
-	public Producto editarProducto(@RequestBody Producto editar, @PathVariable Long id) {
-		// Vamos a modificar este código
-		return null;
+	public Producto editarProducto(@RequestBody Producto producto, @PathVariable Long id) {
+		if (productoRepositorio.existsById(id)) {
+			producto.setId(id);
+			return productoRepositorio.save(producto);
+		} else {
+			return null;
+		}
 	}
-
+	
 	/**
 	 * Borra un producto del catálogo en base a su id
 	 * @param id
-	 * @return
+	 * @return producto
 	 */
 	@DeleteMapping("/producto/{id}")
 	public Producto borrarProducto(@PathVariable Long id) {
-		// Vamos a modificar este código
-		return null;
+		if (productoRepositorio.existsById(id)) {
+			Producto result = productoRepositorio.findById(id).get();
+			productoRepositorio.deleteById(id);
+			return result;
+		} else
+			return null;
 	}
 
 

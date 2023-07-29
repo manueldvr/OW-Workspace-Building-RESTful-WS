@@ -1,4 +1,4 @@
-package com.example.restcontroller;
+package com.example.restservice;
 
 import java.util.List;
 
@@ -21,7 +21,7 @@ public class ProductController {
 	
 	
 	
-	@GetMapping("/productos")
+	@GetMapping("/sss")
 	public List<Producto> productos() {
 		return productoRepositorio.findAll();
 	}	
