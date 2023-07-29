@@ -1,0 +1,117 @@
+# Building a RESTful Web Service
+
+This guide walks you through the process of creating a “Hello, World” RESTful web service with Spring.
+
+## Considerations
+
+Motivated by the HTTP technology and several small RFC standards.
+
+Characteristics:
+
+- Basado en el protocolo HTTP
+- Stateless
+- Representados por una URI
+- Interfaz uniforme
+- Sistema de capas
+
+
+### REST vs RPC
+
+- RPC (remote procedure call) function or service oriented.
+- REST resource oriented, -orientado a ofrecer recursos.
+
+URI examples:
+
+| RPC      | REST |
+| :--- | :--- |
+| /myapi/beerService/getAll      | /myapi/beers       |
+| /myapi/beerService/getById   | /myapi/beer/123        |
+
+
+### Recursos vs. Representación
+
+- REST está orientado al concepto de recurso
+- Cada recurso debe ser accesible a través de una URI
+- El servidor puede ofrecer diferentes representaciones de un
+mismo recurso (por ejemplo en XML, JSON o HTML).
+
+### Ventajas del uso de REST
+
+- Separación cliente - servidor
+- Visibilidad, fiabilidad y escalabilidad
+- Heterogeneidad
+- Variedad de formatos: JSON, XML, …
+- En general, es más rápido y utiliza menos ancho de banda.
+
+### HTTP protocol
+
+Protocolo de transferencia de hipertexto.
+- Permite transferencias de
+información en la WWW.
+- Desarrollado por el WWW
+Consortium y la IETF
+- Versión actual: HTTP/2
+(2.4.39 - 02/04/2019)
+
+
+#### Características de HTTP
+- Esquema de petición - respuesta (request/response)
+- Sin estados
+- HTTP/1.X orientador a carácter, HTTP/2 binario.
+- Conjunto de verbos u operaciones.
+
+
+#### Petición / respuesta
+- El cliente (agente de usuario-user agent) realiza una petición
+enviando un mensaje al servidor.
+- El servidor recibe la petición, y envía un mensaje de respuesta al
+cliente.
+
+
+#### Formato del mensaje
+- Válido tanto para request como response.
+- Solo cambia la línea inicial.
+- Structure:  Header + BODY
+
+#### Métodos (a.k.a verbos)
+- Tipos de peticiones diferentes.
+- Indica el tipo de acción a realizar sobre el recurso indicado.
+- Más conocidos:
+
+- - GET: solicita un recurso al servidor
+- - POST: envía información para crear un nuevo recurso
+- - PUT: actualiza un recurso de forma completa
+- -  DELETE: borra un recurso
+
+
+
+
+## What You Will Build
+
+You will build a service that will accept HTTP GET requests at:
+
+`http://localhost:8080/greeting`
+ 
+It will respond with a JSON representation of a greeting, as the following listing shows:
+
+```
+{"id":1,"content":"Hello, World!"}
+```
+
+You can customize the greeting with an optional `name` parameter in the query string, as the following listing shows:
+
+`http://localhost:8080/greeting?name=User`
+
+The `name` parameter value overrides the default value of `World` and is reflected in the response, as the following listing shows:
+
+{"id":1,"content":"Hello, User!"}
+
+## Source study
+
+
+
+```
+	@GetMapping("/greeting")
+	public Greeting greeting(@RequestParam(value = "name", defaultValue = "World") String name) {
+		return new Greeting(counter.incrementAndGet(), String.format(template, name));
+```
