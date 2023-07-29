@@ -3,6 +3,8 @@ package com.example.restservice;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicLong;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,22 +40,34 @@ public class GreetingController {
 	
 	
 	/**
-	 * Obtenemos todos los productos
+	 * Obtenemos todos los productos.
+	 * Retorna con cod 200, o 400 para recurso no encontrado.
 	 * @return List
 	 */
 	@GetMapping("/producto")
-	public List<Producto> obtenerTodos() {
-		return productoRepositorio.findAll();
+	public ResponseEntity<?> obtenerTodos() {
+		List<Producto> productos = productoRepositorio.findAll();
+		if (productos.isEmpty()) {
+			return ResponseEntity.notFound().build();
+		} else {
+			return ResponseEntity.ok(productos);
+		}
 	}
 	
 	/**
-	 * Obtenemos un producto en base a su ID
+	 * Obtenemos un producto en base a su ID.
+	 * Retorna con cod 200, o 400 para recurso no encontrado.
 	 * @param id
 	 * @return Null si no encuentra el producto
 	 */
 	@GetMapping("/producto/{id}")
-	public Producto obtenerUno(@PathVariable Long id) {
-		return productoRepositorio.findById(id).orElse(null);
+	public ResponseEntity<?> obtenerUno(@PathVariable Long id) {
+		Producto found = productoRepositorio.findById(id).orElse(null);
+		if (found==null) {
+			return ResponseEntity.notFound().build();
+		} else {
+			return ResponseEntity.ok(found);
+		}
 	}
 	
 	/**
@@ -62,8 +76,9 @@ public class GreetingController {
 	 * @return producto insertado
 	 */
 	@PostMapping("/producto")
-	public Producto nuevoProducto(@RequestBody Producto nuevo) {
-		return productoRepositorio.save(nuevo);
+	public ResponseEntity<Producto> nuevoProducto(@RequestBody Producto nuevo) {
+		Producto saved = productoRepositorio.save(nuevo);
+		return ResponseEntity.status(HttpStatus.CREATED).body(saved);
 	}
 	
 	/**
@@ -73,13 +88,14 @@ public class GreetingController {
 	 * @return producto
 	 */
 	@PutMapping("/producto/{id}")
-	public Producto editarProducto(@RequestBody Producto producto, @PathVariable Long id) {
-		if (productoRepositorio.existsById(id)) {
-			producto.setId(id);
-			return productoRepositorio.save(producto);
-		} else {
-			return null;
-		}
+	public ResponseEntity<?> editarProducto(@RequestBody Producto producto, @PathVariable Long id) {
+		return this.productoRepositorio.findById(id).map(p -> {
+			p.setNombre(producto.getNombre());
+			p.setPrecio(producto.getPrecio());
+			return ResponseEntity.ok(this.productoRepositorio.save(p));
+		}).orElseGet(() -> {
+			return ResponseEntity.notFound().build();
+		});
 	}
 	
 	/**
@@ -88,12 +104,11 @@ public class GreetingController {
 	 * @return producto
 	 */
 	@DeleteMapping("/producto/{id}")
-	public Producto borrarProducto(@PathVariable Long id) {
+	public ResponseEntity<?> borrarProducto(@PathVariable Long id) {
 		if (productoRepositorio.existsById(id)) {
-			Producto result = productoRepositorio.findById(id).get();
 			productoRepositorio.deleteById(id);
-			return result;
+			return ResponseEntity.noContent().build();
 		} else
-			return null;
+			return ResponseEntity.notFound().build();
 	}
 }

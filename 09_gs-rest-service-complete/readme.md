@@ -216,3 +216,31 @@ The `name` parameter value overrides the default value of `World` and is reflect
 	public Greeting greeting(@RequestParam(value = "name", defaultValue = "World") String name) {
 		return new Greeting(counter.incrementAndGet(), String.format(template, name));
 ```
+
+
+## Clases y Anotaciones de Spring
+
+Clases (que necesitamos ¡ya!)
+`ResponseEntity<T>`
+
+- Nos permite manejar de una forma más conveniente la
+respuesta que enviamos al cliente.
+- Hereda de HttpEntity<T>
+- Nos permite indicar el código de respuesta, qué se envía en el
+cuerpo, responder peticiones sin el mismo, ...
+
+## Codigos de retorno
+
+@GetMapping: obtener
+- Devolvemos 200 OK si localizamos el recurso
+- Si no, devolvemos 404 Not Found
+
+@PostMapping: insertar/crear
+- Devolvemos 201 Created
+
+@PutMapping: modificar/update
+- Devolvemos 200 OK si localizamos y modificamos el recurso
+- Si no, devolvemos 404 Not Found.
+
+@DeleteMapping: borrar
+- Devolvemos 204 No Content
