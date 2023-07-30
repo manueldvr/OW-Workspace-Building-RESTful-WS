@@ -244,3 +244,39 @@ cuerpo, responder peticiones sin el mismo, ...
 
 @DeleteMapping: borrar
 - Devolvemos 204 No Content
+
+---
+
+## Patron DTO
+
+### 1ro definición de Entidad
+
+Si son de JPA version 2.0: <br>
+Requisitos:
+- Constructor sin argumento y puede tener otros constructores
+- El constructor sin atgs. puede ser público o protegido.
+- Debe tener una clase de superior, aunque sea Object, no puede ser Enumeraciòn o Interfaz.
+- No debería ser final, ni serlo ningún metodo o variable de instancia persistente de dicha clase.
+- Si una instancia de la entidad se va a pasar por valor, por ejemplo a través de una interfaz remota, debería ser serializable.
+- Pueden ser clases abstractas o concretas.
+- Pueden extender clases que no son entidades.
+
+Su objetivo es modelar la lógica de la capa de negocio.
+
+### DTO : Data Transfer Object
+
+Objeto POJO que agrupa datos de la capa de negocio y sirve para transferir datos entre diferentes capas.
+- Puede tener parte de los datos de una sola entidad.
+- Puede tener algunos datos de más de una entidad.
+- Puede aglutinar todos los datos de varias entidades.
+También conocido como Value Object<br>
+Pensado para aligerar las transacciones entre cliente/servidor.<br>
+
+
+
+
+
+
+
+
+
