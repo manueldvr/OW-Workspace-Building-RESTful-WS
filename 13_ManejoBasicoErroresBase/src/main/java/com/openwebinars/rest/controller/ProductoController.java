@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.openwebinars.rest.dto.CreateProductoDTO;
 import com.openwebinars.rest.dto.ProductoDTO;
 import com.openwebinars.rest.dto.converter.ProductoDTOConverter;
+import com.openwebinars.rest.error.ProductNotFoundException;
 import com.openwebinars.rest.modelo.Categoria;
 import com.openwebinars.rest.modelo.CategoriaRepositorio;
 import com.openwebinars.rest.modelo.Producto;
@@ -28,9 +29,12 @@ import lombok.RequiredArgsConstructor;
 public class ProductoController {
 
 	private final ProductoRepositorio productoRepositorio;
+	
 	private final CategoriaRepositorio categoriaRepositorio;
+	
 	private final ProductoDTOConverter productoDTOConverter;
 
+	
 	/**
 	 * Obtenemos todos los productos
 	 * 
@@ -41,7 +45,8 @@ public class ProductoController {
 		List<Producto> result = productoRepositorio.findAll();
 
 		if (result.isEmpty()) {
-			return ResponseEntity.notFound().build();
+			//return ResponseEntity.notFound().build();
+			return new ProductNotFoundException(id));
 		} else {
 
 			List<ProductoDTO> dtoList = result.stream().map(productoDTOConverter::convertToDto)
@@ -53,18 +58,16 @@ public class ProductoController {
 	}
 
 	/**
-	 * Obtenemos un producto en base a su ID
+	 * Obtenemos un producto en base a su ID.
+	 * Se utiliza findById que retorna un Optional.
 	 * 
 	 * @param id
 	 * @return 404 si no encuentra el producto, 200 y el producto si lo encuentra
 	 */
 	@GetMapping("/producto/{id}")
-	public ResponseEntity<?> obtenerUno(@PathVariable Long id) {
-		Producto result = productoRepositorio.findById(id).orElse(null);
-		if (result == null)
-			return ResponseEntity.notFound().build();
-		else
-			return ResponseEntity.ok(result);
+	public Producto obtenerUno(@PathVariable Long id) {
+		return this.productoRepositorio.findById(id)
+				.orElseThrow(() -> new ProductNotFoundException(id));
 	}
 
 	/**
@@ -77,7 +80,6 @@ public class ProductoController {
 	// public ResponseEntity<?> nuevoProducto(@RequestBody Producto nuevo) {
 	public ResponseEntity<?> nuevoProducto(@RequestBody CreateProductoDTO nuevo) {
 		// En este caso, para contrastar, lo hacemos manualmente
-		
 		// Este código sería más propio de un servicio. Lo implementamos aquí
 		// por no hacer más complejo el ejercicio.
 		Producto nuevoProducto = new Producto();
@@ -95,15 +97,13 @@ public class ProductoController {
 	 * @return 200 Ok si la edición tiene éxito, 404 si no se encuentra el producto
 	 */
 	@PutMapping("/producto/{id}")
-	public ResponseEntity<?> editarProducto(@RequestBody Producto editar, @PathVariable Long id) {
-
+	public Producto editarProducto(@RequestBody Producto editar, @PathVariable Long id) {
 		return productoRepositorio.findById(id).map(p -> {
 			p.setNombre(editar.getNombre());
 			p.setPrecio(editar.getPrecio());
-			return ResponseEntity.ok(productoRepositorio.save(p));
-		}).orElseGet(() -> {
-			return ResponseEntity.notFound().build();
-		});
+			return productoRepositorio.save(p);
+		}).orElseThrow(() -> 
+			new ProductNotFoundException(id));
 	}
 
 	/**
@@ -114,7 +114,9 @@ public class ProductoController {
 	 */
 	@DeleteMapping("/producto/{id}")
 	public ResponseEntity<?> borrarProducto(@PathVariable Long id) {
-		productoRepositorio.deleteById(id);
+		this.productoRepositorio.findById(id)
+			.orElseThrow(() -> new ProductNotFoundException(id));
+		this.productoRepositorio.deleteById(id);
 		return ResponseEntity.noContent().build();
 	}
 
