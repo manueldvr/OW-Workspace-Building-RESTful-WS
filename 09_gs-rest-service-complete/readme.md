@@ -265,16 +265,58 @@ Su objetivo es modelar la lógica de la capa de negocio.
 
 ### DTO : Data Transfer Object
 
-Objeto POJO que agrupa datos de la capa de negocio y sirve para transferir datos entre diferentes capas.
+Objeto POJO que agrupa datos de la capa de negocio y sirve para transferir datos entre diferentes capas.<br>
+- Objeto Plano -POJO-. Nada de lógica del negocio.
+- Getters, Setters o constructores necesarios.
+- Serializable.
 - Puede tener parte de los datos de una sola entidad.
 - Puede tener algunos datos de más de una entidad.
 - Puede aglutinar todos los datos de varias entidades.
-También conocido como Value Object<br>
-Pensado para aligerar las transacciones entre cliente/servidor.<br>
+
+
+También conocido como **Value Object**.
+
+Pensado para *aligerar* las transacciones entre cliente/servidor.<br>
+
+ejemplo: un DTO podrìa ser la construcciòn de una clase ProductoDTO en base a a la unión de los datos de Producto y Categoría.
+
+#### Cómo y dónde usarlos
+
+Suponiendo que tenemos un catálogo de productos como el de nuestro ejemplo:
+- GET /producto/ <br>
+EL listado de todos los productos puede ser orientado a ser visualizado en una paguina con todos los productos (on un subconjnto si x ejemplo hay paginaión). Y no necesariamiente todos los campos del objeto Producto, tal vez solo el nombre.
+- GET /producto/{id} <br>
+En este caso es un producto individual. No necesariamente el DTO anterior. Una alternativa es usar la Entidad, otra es crear un DTO específico.
+
+#### Multiples DTOs para un solo BO -Business Object-
+
+Es posible tener más de un DTO para un solo OB.
+
+Ejemplo es el *Usuario*, según la capa puede ser:
+- UserEntity para la capa de *Persistencia*
+- User para la capa de *capa de Seguridad*
+- CreateUserDTO para la *petición de creación*
+- GetUserDTO para la *solicitud de datos*
 
 
 
+#### Value Object - VO vs DTO
 
+A value object is a simple object whose equality isn't based on identity. <br> 
+A DTO is an object used to transfer data between software application subsystems, usually between business layers and UI. It is focused just on plain data, so it doesn't have any behaviour.
+
+VO does not have to map directly against a domain entity, rather than to some fields of it or a diferent "picture" of it.
+
+<br><br><br>
+
+---
+
+
+## Referencias
+
+
+1. This guide walks you through the process of creating a “Hello, World” RESTful web service with Spring.
+[Guides: Building a RESTful Web Service](https://spring.io/guides/gs/rest-service/)
 
 
 
