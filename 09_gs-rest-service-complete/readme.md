@@ -299,6 +299,18 @@ Ejemplo es el *Usuario*, según la capa puede ser:
 - GetUserDTO para la *solicitud de datos*
 
 
+#### Implementación de DTOs
+
+**Manualmente**
+- con un builder (lombok)
+
+**ModelMapper**
+
+**JsonViews**
+- A través de anotaciones, un mimso objeto puede devolver más o menos campos.
+
+
+
 
 #### Value Object - VO vs DTO
 
@@ -306,6 +318,107 @@ A value object is a simple object whose equality isn't based on identity. <br>
 A DTO is an object used to transfer data between software application subsystems, usually between business layers and UI. It is focused just on plain data, so it doesn't have any behaviour.
 
 VO does not have to map directly against a domain entity, rather than to some fields of it or a diferent "picture" of it.
+
+
+## Cómo transformar BO <--> DTO
+
+Puede ser manualmente.
+
+Con *ModelMapper*
+- Evita código repetitivo
+- Facilita la creación de DTO mediante asignación dinámica.
+- CoC y configurable.
+
+
+##### 1_ pom.xml
+
+```
+<dependency>
+	<groupId>org.modelmapper</groupId>
+	<artifactId>modelmapper</artifactId>
+	<version>2.3.5</version>
+</dependency>
+```
+
+##### 2_ Configuración básica
+
+Creamos un bean de tipo ModelMapper para toda nuestra aplicación.
+
+```
+@Bean
+public ModelMapper modelMapper() {
+return new ModelMapper();
+}
+```
+
+
+##### 3_ Creamos nuestro DTO
+
+```
+@Getter @Setter
+public class ProductoDTO {
+	private long id;
+	private String nombre;
+	private String categoriaNombre;
+}
+```
+
+##### 4_ Dónde hacer la transformación
+
+Explícitamente, lo podemos hacer en el controlador.
+
+Sin embargo, creamos un componente independiente, que inyectaremos para usar donde haga falta.
+
+```
+@Component 
+@RequiredArgsConstructor
+public class ProductoDTOConverter {
+
+	private final ModelMapper modelMapper;
+
+	public ProductoDTO convertToDto(Producto producto) {
+		return modelMapper.map(producto, ProductoDTO.class);
+	}
+}
+```
+
+##### 5_ Dónde hacer la transformación
+
+```
+@RestController 
+@RequiredArgsConstructor
+public class ProductoController {
+
+	private final ProductoDTOConverter productoDTOConverter;
+
+	@GetMapping("/producto")
+	public ResponseEntity<?> obtenerTodos() {
+		List<Producto> result = productoRepositorio.findAll();
+		if (result.isEmpty()) {
+			return ResponseEntity.notFound().build();
+		} else {
+			List<ProductoDTO> dtoList = result.stream()
+							.map(productoDTOConverter::convertToDto)
+							.collect(Collectors.toList());
+			return ResponseEntity.ok(dtoList);
+		}
+	}
+}
+```
+
+##### Reto
+- Crear un nuevo DTO para editar un producto. Reflexionar sobre si
+es necesario o se puede reutilizar CreateProductoDTO.
+- Añadir al conversor de producto un método que permita
+transformar rápidamente un CreateProductoDTO en un Producto.
+- Añadir más atributos al modelo de Producto, pero sin cambiar los
+atributos de ProductoDTO, la evidenciar de una manera mayor la
+diferencia de solicitar uno u otro. Se puede usar
+https://mockaroo.com/ para obtener datos de ejemplo.
+
+
+
+
 
 <br><br><br>
 
