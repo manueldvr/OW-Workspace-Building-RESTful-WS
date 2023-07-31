@@ -1,7 +1,13 @@
 package com.openwebinars.rest.controller;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
+import javax.persistence.EntityNotFoundException;
+
+import org.hibernate.criterion.Example;
+import org.springframework.data.repository.CrudRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -12,6 +18,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.openwebinars.rest.dto.CreateProductoDTO;
+import com.openwebinars.rest.dto.ProductoDTO;
+import com.openwebinars.rest.dto.converter.ProductoDTOConverter;
+import com.openwebinars.rest.modelo.Categoria;
+import com.openwebinars.rest.modelo.CategoriaRepositorio;
 import com.openwebinars.rest.modelo.Producto;
 import com.openwebinars.rest.modelo.ProductoRepositorio;
 
@@ -21,11 +32,22 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class ProductoController {
 
+	
+	
 	private final ProductoRepositorio productoRepositorio;
+	
+	private final CategoriaRepositorio categoriaRepositorio;
+	
+	private final ProductoDTOConverter productoDTOConverter;
+
+	
 
 	/**
-	 * Obtenemos todos los productos
-	 * 
+	 * Obtenemos todos los productos.6
+	 * Usando mapper a ProductoDTO para que vea el nombre de la categoria.
+	 * Si no se convirte(mapea) se obtienen objetos Categoria anidados.
+	 * @see ProductoDTO
+	 * @see ProductoDTOConverter
 	 * @return 404 si no hay productos, 200 y lista de productos si hay uno o más
 	 */
 	@GetMapping("/producto")
@@ -35,7 +57,11 @@ public class ProductoController {
 		if (result.isEmpty()) {
 			return ResponseEntity.notFound().build();
 		} else {
-			return ResponseEntity.ok(result);
+			//return ResponseEntity.ok(result);
+			
+			List<ProductoDTO> dtoList = result.stream()
+			  .map(this.productoDTOConverter::convertToDto) .collect(Collectors.toList());
+			return ResponseEntity.ok(dtoList); 
 		}
 
 	}
@@ -61,11 +87,52 @@ public class ProductoController {
 	 * @param nuevo
 	 * @return 201 y el producto insertado
 	 */
-	@PostMapping("/producto")
-	public ResponseEntity<?> nuevoProducto(@RequestBody Producto nuevo) {
+	@PostMapping("/productoBase")
+	public ResponseEntity<?> nuevoProductoBase(@RequestBody Producto nuevo) {
 		Producto saved = productoRepositorio.save(nuevo);
 		return ResponseEntity.status(HttpStatus.CREATED).body(saved);
 	}
+	
+	/**
+	 * Insertamos un nuevo producto
+	 * 
+	 * @param nuevo
+	 * @return 201 y el producto insertado
+	 */
+	@PostMapping("/productoManual")
+	public ResponseEntity<?> nuevoProductoManual(@RequestBody CreateProductoDTO nuevo) {
+		// En este caso, para contrastar, lo hacemos manualmente
+		
+		// Este código sería más propio de un servicio. Lo implementamos aquí
+		// por no hacer más complejo el ejercicio.
+		Producto nuevoProducto = new Producto();
+		nuevoProducto.setNombre(nuevo.getNombre());
+		nuevoProducto.setPrecio(nuevo.getPrecio());
+		Categoria categoria = categoriaRepositorio.findById(nuevo.getCategoriaId()).orElse(null);
+		nuevoProducto.setCategoria(categoria);
+		return ResponseEntity.status(HttpStatus.CREATED).body(productoRepositorio.save(nuevoProducto));
+	}
+	
+	/**
+	 * Insertamos un nuevo producto. Usando mapper.
+	 * 
+	 * @param nuevo
+	 * @return 201 y el producto insertado
+	 */
+	@PostMapping("/producto")
+	public ResponseEntity<?> nuevoProducto(@RequestBody CreateProductoDTO nnuevo) {
+
+		Producto found = this.productoRepositorio.findProductoByNombre(nnuevo.getNombre()).orElse(null);
+		if (found!=null) {
+			return ResponseEntity.badRequest().body(new String("recurso ya existe"));
+		} else {
+			Producto producto = this.productoDTOConverter.convertToProducto(nnuevo);
+			Producto saved = this.productoRepositorio.save(producto);
+			return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+		}
+	}
+	
+	
 
 	/**
 	 * 
