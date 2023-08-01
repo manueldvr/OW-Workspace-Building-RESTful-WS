@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.openwebinars.rest.dto.CreateProductoDTO;
 import com.openwebinars.rest.dto.ProductoDTO;
 import com.openwebinars.rest.dto.converter.ProductoDTOConverter;
@@ -126,7 +127,7 @@ public class ProductoController {
 	 * metodo con la esception como parametro devolviendo un response del tipo 
 	 * APIError.
 	 * @param exception
-	 * @return
+	 * @return ResponseEntity
 	 */
 	@ExceptionHandler(ProductoNotFoundException.class)
 	public ResponseEntity<APIError> handleProductoNoEncontrado(ProductoNotFoundException exception){
@@ -137,4 +138,17 @@ public class ProductoController {
 		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
 	}
 	
+	/**
+	 * 
+	 * @param exception
+	 * @return ResponseEntity
+	 */
+	@ExceptionHandler(JsonMappingException.class)
+	public ResponseEntity<APIError> handleJsonMappingException(ProductoNotFoundException exception){
+		APIError apiError = new APIError();
+		apiError.setEstado(HttpStatus.BAD_REQUEST);
+		apiError.setFecha(LocalDateTime.now());
+		apiError.setMensaje(exception.getMessage());
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(apiError);
+	}
 }
