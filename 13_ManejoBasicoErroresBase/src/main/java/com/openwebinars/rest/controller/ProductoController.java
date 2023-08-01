@@ -47,19 +47,13 @@ public class ProductoController {
 	@GetMapping("/producto")
 	public ResponseEntity<?> obtenerTodos() throws AllDataException {
 		List<Producto> result = productoRepositorio.findAll();
-
 		if (result.isEmpty()) {
-			//return ResponseEntity.notFound().build();
-			//return new ProductNotFoundException(id));
 			throw new AllDataException();
 		} else {
-
 			List<ProductoDTO> dtoList = result.stream().map(productoDTOConverter::convertToDto)
 					.collect(Collectors.toList());
-
 			return ResponseEntity.ok(dtoList);
 		}
-
 	}
 
 	/**
@@ -84,9 +78,6 @@ public class ProductoController {
 	@PostMapping("/productoManual")
 	// public ResponseEntity<?> nuevoProducto(@RequestBody Producto nuevo) {
 	public ResponseEntity<?> nuevoProductoManual(@RequestBody CreateProductoDTO nuevo) {
-		// En este caso, para contrastar, lo hacemos manualmente
-		// Este código sería más propio de un servicio. Lo implementamos aquí
-		// por no hacer más complejo el ejercicio.
 		Producto nuevoProducto = new Producto();
 		nuevoProducto.setNombre(nuevo.getNombre());
 		nuevoProducto.setPrecio(nuevo.getPrecio());
@@ -106,14 +97,12 @@ public class ProductoController {
 	 */
 	@PostMapping("/producto")
 	public ResponseEntity<?> nuevoProducto(@RequestBody CreateProductoDTO nnuevo) throws ProductFoundException{
-		//Optional<Producto> p = this.productoRepositorio.findProductoByNombre(nnuevo.getNombre()).isPresent();
 		if (this.productoRepositorio.findProductoByNombre(nnuevo.getNombre()).isPresent()) {
 			throw new ProductFoundException(nnuevo.getNombre());
 		}
 		Producto producto = this.productoDTOConverter.convertToProducto(nnuevo);
 		Producto saved = this.productoRepositorio.save(producto);
 		return ResponseEntity.status(HttpStatus.CREATED).body(saved);
-		
 	}
 	
 	/**
