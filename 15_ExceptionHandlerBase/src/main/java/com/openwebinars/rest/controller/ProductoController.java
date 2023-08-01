@@ -1,11 +1,13 @@
 package com.openwebinars.rest.controller;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.openwebinars.rest.dto.CreateProductoDTO;
 import com.openwebinars.rest.dto.ProductoDTO;
 import com.openwebinars.rest.dto.converter.ProductoDTOConverter;
+import com.openwebinars.rest.error.APIError;
 import com.openwebinars.rest.error.ProductoNotFoundException;
 import com.openwebinars.rest.modelo.Categoria;
 import com.openwebinars.rest.modelo.CategoriaRepositorio;
@@ -116,4 +119,22 @@ public class ProductoController {
 		return ResponseEntity.noContent().build();
 	}
 
+	
+	/**
+	 * Cuando se produzca en exception del tipo ProductoNotFoundException, en 
+	 * lugar de hacer el tratamiento de errores por defecto, se invocará este 
+	 * metodo con la esception como parametro devolviendo un response del tipo 
+	 * APIError.
+	 * @param exception
+	 * @return
+	 */
+	@ExceptionHandler(ProductoNotFoundException.class)
+	public ResponseEntity<APIError> handleProductoNoEncontrado(ProductoNotFoundException exception){
+		APIError apiError = new APIError();
+		apiError.setEstado(HttpStatus.NOT_FOUND);
+		apiError.setFecha(LocalDateTime.now());
+		apiError.setMensaje(exception.getMessage());
+		return ResponseEntity.status(HttpStatus.NOT_FOUND).body(apiError);
+	}
+	
 }

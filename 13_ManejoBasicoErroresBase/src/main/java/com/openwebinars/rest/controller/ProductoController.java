@@ -134,5 +134,4 @@ public class ProductoController {
 		this.productoRepositorio.deleteById(id);
 		return ResponseEntity.noContent().build();
 	}
-
 }
