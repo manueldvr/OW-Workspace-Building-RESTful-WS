@@ -78,4 +78,5 @@ public class ApiError {
 
 ## Referencias
 
+- [Guide to Spring Boot REST API Error Handling](https://www.toptal.com/java/spring-boot-rest-api-error-handling).
 - Para más información sobre la librería: [ModelMapper getting started](http://modelmapper.org/getting-started/).
