@@ -1,77 +1,76 @@
-# c18 Novedades de Spring5: ResponseStatusException
+# c21 Configuración CORS GLOBAL
 
 
-## ResponseStatusException
-- Disponible desde Spring 5
-- Se trata como cualquier otra excepción (throw new …)
-- Nos permite indicar:
--- Estado (HttpStatus) (obligatorio)
--- razón (String) (opcional).
--- causa (Throwable) (opcional).
+`+` ver proyecto: `21_CORSGlobalBase`.
 
-Ejemplo:
+## Configuración a nivel de método/clase
+
+Si el número de métodos/clases es grande no es asumible.
+
+Además, si queremos actualizar dicha configuración (lista de
+orígenes) es difícilmente mantenible.
+
+Spring permite realizar una configuración global.
+
+Similar al uso de filtros.
+
+Se puede combinar con `@CrossOrigin`:
+
+- Definir algunos elementos a nivel global.
+- Matizar otros a nivel de método/clase.
+
+
+
+## Configuración básica (Spring Boot)
+
+Configuración básica, sin filtros:
 
 ```
-public ResponseEntity<?> obtenerTodos() {
-	List<Producto> result = productoRepositorio.findAll();
-	if (result.isEmpty()) {
-		throw new ResponseStatusException(
-		HttpStatus.NOT_FOUND, "No hay productos registrados");
-	} else {
-	// Resto del código
+	@Configuration
+	public class MyConfiguration {
+	
+		@Bean
+		public WebMvcConfigurer corsConfigurer() {
+			return new WebMvcConfigurerAdapter() {
+				@Override
+				public void addCorsMappings(CorsRegistry registry) {
+					registry.addMapping("/**");
+				}
+			};
+		}
 	}
+```
+
+
+Configuración más restrictiva para determnadas rutas para permitir, ciertos origines, ciertos orígenes:
+
+```
+@Bean
+public WebMvcConfigurer corsConfigurer() {
+	return new WebMvcConfigurer() {
+		@Override
+		public void addCorsMappings(CorsRegistryregistry) {
+			registry.addMapping("/producto/**")
+				.allowedOrigins("http://localhost:9001")
+				.allowedMethods("GET",
+				"POST", "PUT", "DELETE")
+				.maxAge(3600);
+		}
+	};
 }
 ```
 
-
-### Manejo junto a otras excepciones
-
-Nos permite seguir reutilizando nuestras excepciones
-
-```
-@GetMapping("/producto/{id}")
-public Producto obtenerUno(@PathVariable Long id) {
-	try {
-		return productoRepositorio.findById(id)
-				.orElseThrow(() -> new
-								ProductoNotFoundException(id));
-	} catch (ProductoNotFoundException ex) {
-		throw new ResponseStatusException(
-		HttpStatus.NOT_FOUND, ex.getMessage());
-	}
-}
-```
+ver en la clase `MiConfiguracion` que permite lanzar beans.
 
 
+## Tareas 
 
-## Ventajas
-- Muy bueno al empezar a desarrollar nuestra aplicación. Manejo de errores con poco esfuerzo
-- Un tipo de excepción puede llevar asociados, en diferentes
-lugares, diferentes tipos de código de estado .
-- No necesitamos tantas clases de excepción personalizadas.
-- Más control del manejo de excepciones (se lanzan
-programáticamente).
-
-## Desventajas
-- Perdemos la globalidad ganada con @ControllerAdvice
-- Duplicación de código.
-- El modelo de error vuelve a ser el estándar.
-
-## Conclusión
-- Podemos combinar `@ControllerAdvice` para elementos globales,
-con ResponseStatusException para elementos puntuales o más
-específicos.
-- Cuidado con manejar un tipo de excepción más de una vez
-(`ResponseStatusException` + `@ControllerAdvice`)
-
-
-## Modelo de error
-- Hemos vuelto al modelo estándar. ¿No podemos hacer nada?
-- Modificar el modelo estándar.
-- Debemos crear un `@Component` que extienda a
-DefaultErrorAttributes.
-- Sobreescribimos el método getErrorAttributes. Este devuelve un
-map a partir del cual se generará el JSON.
+- Por ejemplo, limita que se puedan realizar peticiones GET y
+POST, y trata de hacer una petición PUT o DELETE, para ver
+si funciona.
+- Intenta configurar dos orígenes diferentes, con
+configuraciones distintas (uno que solo pueda hacer GET, y
+otro que pueda realizar todos los métodos).
 
 
 ---
@@ -80,3 +79,8 @@ map a partir del cual se generará el JSON.
 
 - Class: [ResponseEntityExceptionHandler](https://docs.spring.io/spring-framework/docs/current/javadoc-api/org/springframework/web/servlet/mvc/method/annotation/ResponseEntityExceptionHandler.html).
 
+- CORS with Spring [CORS](https://www.baeldung.com/spring-cors#:~:text=Global%20CORS%20Configuration&text=This%20is%20similar%20to%20using,and%20POST%20methods%20are%20allowed.)
+
+- [Cross-Origin Resource Sharing and Why We Need Preflight Requests](https://www.baeldung.com/cs/cors-preflight-requests)
+
+- [Spring Boot CORS Configuration Example](https://howtodoinjava.com/spring-boot2/spring-cors-configuration/)
