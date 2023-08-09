@@ -202,6 +202,25 @@ partes.
 - - `@RequestPart`.
 
 
+## `@RequestParam` vs  `@RequestPart`
+
+### `@RequestParam`: 
+
+Asocia un parámetro de la petición a un argumento de un método de un controlador.
+
+- Puede usarse en peticiones multiparte.
+- Válido para anotar *MultipartFile*.
+- Inconveniente: si no es de tipo *String* o *MultipartFile*, necesita
+un *Converter* registrado.
+- Nosotros transformamos *JSON* - Objeto Java vía un
+`HttpMessageConverter` (no es lo mismo).
+
+
+### @RequestPart
+
+
+
+
 
 ---
 
