@@ -176,13 +176,39 @@ respuesta a una petición.
 obtener los ficheros.
 
 
+<br>
+<br>
+<br>
+<br>
+
+---
 
 
 
+# c23 Implementación de la subida de ficheros
+
+
+## Método de subida
+
+Nuestro método *nuevoProducto* con algunas modificaciones:
+
+- Aunque no es obligatorio, añadimos el tipo mime de los datos
+que consume `MediaType.MULTIPART_FORM_DATA_VALUE`.
+- Ya no podemos obtener nuestros datos a partir de
+`@RequestBody`, ya que el cuerpo de la petición tiene varias
+partes.
+- Necesitamos utilizar otras anotaciones, como:
+- - `@RequestParam` o 
+- - `@RequestPart`.
 
 
 
 ---
+
+<br>
+<br>
+
+
 
 ## Referencias
 
