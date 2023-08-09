@@ -11,7 +11,7 @@ delimitadas, con su correspondiente *Content-Type*.
 Cuando Spring procesa una petición multiparte, nos deja acceder a
 ella (o ellas) a través de `@RequestParam`.
 
-```
+```java
 	@PostMapping(“/upload”)
 	public String handleUpload(... , @RequestParam(“file”) MultipartFile file)
 		{ … }
@@ -198,8 +198,8 @@ que consume `MediaType.MULTIPART_FORM_DATA_VALUE`.
 `@RequestBody`, ya que el cuerpo de la petición tiene varias
 partes.
 - Necesitamos utilizar otras anotaciones, como:
-- - `@RequestParam` o 
-- - `@RequestPart`.
+	- `@RequestParam` o 
+	- `@RequestPart`.
 
 
 ## `@RequestParam` vs  `@RequestPart`
