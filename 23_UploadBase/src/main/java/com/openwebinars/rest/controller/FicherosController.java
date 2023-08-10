@@ -28,6 +28,16 @@ public class FicherosController {
 	
 	private final StorageService storageService;
 	
+	
+	
+	/**
+	 * Método serveFile.
+	 * Método especial que será capaz de devolvernos el fichero como respuesta a una petición.
+	 * Nos aísla tener que configurar el almacenamiento estático para obtener los ficheros.
+	 * @param filename
+	 * @param request
+	 * @return ResponseEntity
+	 */
 	@GetMapping(value="/files/{filename:.+}")
 	@ResponseBody
 	public ResponseEntity<Resource> serveFile(@PathVariable String filename, HttpServletRequest request) {
