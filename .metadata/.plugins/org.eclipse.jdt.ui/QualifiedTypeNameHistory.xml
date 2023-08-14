@@ -12,4 +12,9 @@
     <fullyQualifiedTypeName name="org.springframework.web.bind.annotation.PostMapping"/>
     <fullyQualifiedTypeName name="org.springframework.web.bind.annotation.RequestBody"/>
     <fullyQualifiedTypeName name="javax.persistence.EntityNotFoundException"/>
+    <fullyQualifiedTypeName name="org.springframework.http.MediaType"/>
+    <fullyQualifiedTypeName name="org.springframework.web.bind.annotation.RequestPart"/>
+    <fullyQualifiedTypeName name="org.springframework.web.multipart.MultipartFile"/>
+    <fullyQualifiedTypeName name="com.openwebinars.rest.upload.StorageService"/>
+    <fullyQualifiedTypeName name="org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder"/>
 </qualifiedTypeNameHistroy>
